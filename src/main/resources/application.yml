@@ -1,0 +1,6 @@
+server:
+    port: 8201
+
+spring:
+    application:
+        name: SNMPManager-Server

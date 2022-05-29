@@ -36,21 +36,12 @@ public class RequestAndResponse {
      */
     private Integer errorIndex;
 
-    /**
-     * 变量绑定表(Variable bindings)：变量绑定列表，由变量名和变量值对组成。
-     * 在检索请求报文中，变量的值应为 0。
-     */
-    private VariableBindings variableBindings;
-
-
-    public RequestAndResponse(int requestId, int errorStatus, int errorIndex,
-                              VariableBindings variableBindings) {
+    public RequestAndResponse(int requestId, int errorStatus, int errorIndex) {
         this.requestId = requestId;
 
         this.errorStatusValue = errorStatus;
         this.errorStatus = status[errorStatus];
 
         this.errorIndex = errorIndex;
-        this.variableBindings = variableBindings;
     }
 }

@@ -28,7 +28,7 @@ public class MergeUtils {
         return res;
     }
 
-    public static byte[] lengthMerge(byte[] lengthHead, byte[] l) {
+    public static byte[] mergeTwoBytes(byte[] lengthHead, byte[] l) {
         byte[] res = new byte[lengthHead.length + l.length];
         System.arraycopy(lengthHead, 0, res, 0, lengthHead.length);
         System.arraycopy(l, 0, res, lengthHead.length, l.length);

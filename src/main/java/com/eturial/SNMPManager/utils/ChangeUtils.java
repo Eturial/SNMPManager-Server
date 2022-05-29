@@ -17,43 +17,42 @@ public class ChangeUtils {
             temp += " ";
             stringRes.append(temp);
         }
-        System.out.println(stringRes.toString());
         return stringRes;
     }
 
     /**
      * 将int型整数转换为字节数组
      *
-     * @param number int整数
+     * @param num int整数
      * @return 字节数组
      */
-    public static byte[] intToBytes(int number) {
+    public static byte[] intToBytes(int num) {
         int n = 0;
         byte[] result;
-        if (number <= 255 && number >= 0) {
-            return new byte[]{(byte) (number)};
-        } else if (number <= 65535 && number >= 256) {
+        if (num <= 255 && num >= 0) {
+            return new byte[]{(byte) (num)};
+        } else if (num <= 65535 && num >= 256) {
             result = new byte[2];
             for (int i = 1; i >= 0; i--) {
-                result[i] = (byte) (number >> n);
+                result[i] = (byte) (num >> n);
                 n = n + 8;
             }
             return result;
-        } else if (number <= 16777215 && number >= 65536) {
+        } else if (num <= 16777215 && num >= 65536) {
             result = new byte[3];
             for (int i = 2; i >= 0; i--) {
-                result[i] = (byte) (number >> n);
+                result[i] = (byte) (num >> n);
                 n = n + 8;
             }
             return result;
-        } else if (number >= 16777216) {
+        } else if (num >= 16777216) {
             result = new byte[4];
             for (int i = 3; i >= 0; i--) {
-                result[i] = (byte) (number >> n);
+                result[i] = (byte) (num >> n);
                 n = n + 8;
             }
             return result;
         }
-        return new byte[1];
+        return null;
     }
 }

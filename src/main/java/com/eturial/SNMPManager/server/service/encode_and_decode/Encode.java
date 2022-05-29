@@ -1,5 +1,7 @@
 package com.eturial.SNMPManager.server.service.encode_and_decode;
 
+import com.eturial.SNMPManager.server.entity.dataparams.SNMPMessage;
+import com.eturial.SNMPManager.server.entity.dataparams.SnmpPDU;
 import com.eturial.SNMPManager.server.entity.dataparams.VariableBindings;
 
 import java.util.ArrayList;
@@ -15,6 +17,12 @@ public interface Encode {
      * @return length 编码
      */
     byte[] getLengthCode(int length);
+
+    /**
+     * @param type
+     * @return type 编码
+     */
+    byte[] getTypeCode(int type);
 
     /**
      * @param objectID   Variable对象(Name) 的值
@@ -37,11 +45,23 @@ public interface Encode {
      * @param str
      * @return UNIVERSAL 2 INTEGER类型 编码
      */
-    byte[] getIntegerCoding(String str);
+    byte[] getIntegerCode(String str);
 
     /**
      * @param variableBindings
      * @return Variable bindings 编码
      */
     byte[] getVariableBindingsCode(VariableBindings variableBindings);
+
+    /**
+     * @param snmpPDU
+     * @return SnmpPDU 编码
+     */
+    byte[] getSnmpPDUCode(SnmpPDU snmpPDU);
+
+    /**
+     * @param snmpMessage
+     * @return SnmpPDU 编码
+     */
+    byte[] getSnmpMessageCode(SNMPMessage snmpMessage);
 }

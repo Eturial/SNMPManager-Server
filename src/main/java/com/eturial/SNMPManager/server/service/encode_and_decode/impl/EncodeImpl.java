@@ -1,7 +1,6 @@
 package com.eturial.SNMPManager.server.service.encode_and_decode.impl;
 
-import com.eturial.SNMPManager.server.entity.dataparams.Variable;
-import com.eturial.SNMPManager.server.entity.dataparams.VariableBindings;
+import com.eturial.SNMPManager.server.entity.dataparams.*;
 import com.eturial.SNMPManager.server.service.encode_and_decode.Encode;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import com.eturial.SNMPManager.utils.MergeUtils;
@@ -21,9 +20,16 @@ public class EncodeImpl implements Encode {
         if(length >= 127) {
            byte[] lengthHead = ChangeUtils.intToBytes(lengthByte.length);
            lengthHead[0] |= (0x80);
-           lengthByte = MergeUtils.lengthMerge(lengthHead, lengthByte);
+           lengthByte = MergeUtils.mergeTwoBytes(lengthHead, lengthByte);
         }
         return lengthByte;
+    }
+
+    @Override
+    public byte[] getTypeCode(int type) {
+        byte[] valueByte = ChangeUtils.intToBytes(type);
+        valueByte[0] |= (0x20);
+        return valueByte;
     }
 
     @Override  // 编码OID  T OBJECT IDENTIFIER
@@ -77,7 +83,7 @@ public class EncodeImpl implements Encode {
     }
 
     @Override
-    public byte[] getIntegerCoding(String str) {
+    public byte[] getIntegerCode(String str) {
         // V
         byte[] valueByte = ChangeUtils.intToBytes(Integer.parseInt(str));
         // L
@@ -91,16 +97,88 @@ public class EncodeImpl implements Encode {
     @Override
     public byte[] getVariableBindingsCode(VariableBindings variableBindings) {
         ArrayList<Variable> variableArrayList = variableBindings.getVariableList();
+        //  T  UNIVERSAL 16 SEQUENCE/SEQUENCE OF 序列
+        byte[] typeByte = getTypeCode(16);
+
+        byte[] res = new byte[0];
         for(Variable variable : variableArrayList) {
             // V
             byte[] oID = getOIDCode(variable.getName());
-            byte[] value = getStrCode(variable.getValue());
+            byte[] valueByte;
+            switch (variable.getValueType()) {
+                case UniversalType.INTEGER :
+                    valueByte = getIntegerCode(variable.getValue());
+                    break;
+                case UniversalType.String :
+                    valueByte = getStrCode(variable.getValue());
+                    break;
+                case UniversalType.NULL :
+                    valueByte = getNullCode();
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + variable.getValueType());
+            }
+            byte[] variableValueByte = MergeUtils.mergeTwoBytes(oID, valueByte);
             // L
-            byte[] lengthByte;
-
-            //  T  UNIVERSAL 16 SEQUENCE/SEQUENCE OF 序列
-            byte[] typeByte = ChangeUtils.intToBytes(16);
+            byte[] lengthByte = getLengthCode(variableValueByte.length);
+            // 合并
+            byte[] variableByte = MergeUtils.tlvMerge(typeByte, lengthByte, variableValueByte);
+            res = MergeUtils.mergeTwoBytes(res, variableByte);
         }
-        return null;
+        // L
+        byte[] lengthByte = getLengthCode(res.length);
+
+        return MergeUtils.tlvMerge(typeByte, lengthByte, res);
+    }
+
+    @Override
+    public byte[] getSnmpPDUCode(SnmpPDU snmpPDU) {
+        byte[] variableBindingsCode = getVariableBindingsCode(snmpPDU.getVariableBindings());
+
+        // Error status 和 Error index
+        byte[] errorByte = {2, 1, 0, 2, 1, 0};
+        byte[] res = MergeUtils.mergeTwoBytes(errorByte, variableBindingsCode);
+
+        //  Request ID
+        //  V
+        byte[] valueByte = getIntegerCode(String.valueOf(snmpPDU.getRequestAndResponse().getRequestId()));
+        //  L
+        byte[] lengthByte = getLengthCode(valueByte.length);
+        //  T  UNIVERSAL 2 INTEGER
+        byte[] typeByte = ChangeUtils.intToBytes(2);
+        //  合并
+        res = MergeUtils.mergeTwoBytes(MergeUtils.tlvMerge(typeByte, lengthByte, valueByte), res);
+        //  编码PDU type的TL
+        //  T
+        byte[] tByte = new byte[0];
+        if (snmpPDU.getPduTypeValue() == 0) {
+            tByte = ChangeUtils.intToBytes(160);
+        } else if (snmpPDU.getPduTypeValue() == 1) {
+            tByte = ChangeUtils.intToBytes(161);
+        } else if (snmpPDU.getPduTypeValue() == 3) {
+            tByte = ChangeUtils.intToBytes(163);
+        }
+        //  L
+        byte[] lByte = getLengthCode(res.length);
+
+        return MergeUtils.tlvMerge(tByte, lByte, res);
+    }
+
+    @Override
+    public byte[] getSnmpMessageCode(SNMPMessage snmpMessage) {
+        byte[] snmpPDUCode = getSnmpPDUCode(snmpMessage.getSnmpPDU());
+        // community
+        byte[] communityCode = getStrCode(snmpMessage.getCommunity());
+        byte[] valueByte = MergeUtils.mergeTwoBytes(communityCode, snmpPDUCode);
+        // version
+        byte[] versionCode = getIntegerCode(String.valueOf(snmpMessage.getVersionValue()));
+        valueByte = MergeUtils.mergeTwoBytes(versionCode, valueByte);
+
+        // L
+        byte[] lByte = getLengthCode(valueByte.length);
+        // T
+        byte[] typeByte = getTypeCode(16);
+
+        return MergeUtils.tlvMerge(typeByte, lByte, valueByte);
     }
 }

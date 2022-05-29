@@ -15,6 +15,6 @@ import java.util.ArrayList;
 @Data
 public class VariableBindings {
 
-    private ArrayList<Variable> variable;
+    private ArrayList<Variable> variableList;
 
 }

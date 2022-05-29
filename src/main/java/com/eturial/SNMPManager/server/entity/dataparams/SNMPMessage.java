@@ -34,9 +34,9 @@ public class SNMPMessage {
             "get-request (0)", "get-next-request (1)", "get-response (2)",
             "set-request (3)", "trap (4)"};
 
-    private Object snmpPDU;
+    private SnmpPDU snmpPDU;
 
-    public SNMPMessage(int versionValue, String community, int pduTypeValue, Object snmpPDU) {
+    public SNMPMessage(int versionValue, String community, int pduTypeValue, SnmpPDU snmpPDU) {
         this.versionValue = versionValue;
         this.version = "Version-" + (versionValue - 1);
 

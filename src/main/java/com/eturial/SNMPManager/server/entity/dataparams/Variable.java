@@ -21,11 +21,6 @@ public class Variable {
     private Integer type;
     private String valueType;
 
-    // ASN.1 定义的通用类型(此处只枚举了 UNIVERSAL 1-6 )
-    private final String[] types = {"",
-            "BOOLEAN (1)", "INTEGER (2)", "BIT STRING (3)",
-            "OCTET STRING (4)", "NULL (5)", "OBJECT IDENTIFIER (6)"};
-
     /**
      * 值(Value)：值
      */
@@ -35,7 +30,7 @@ public class Variable {
         this.name = name;
 
         this.type = valueType;
-        this.valueType = types[valueType];
+        this.valueType = UniversalType.types[valueType];
 
         this.value = value;
     }

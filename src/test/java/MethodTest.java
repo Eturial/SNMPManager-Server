@@ -1,5 +1,6 @@
 import com.eturial.SNMPManager.server.entity.dataparams.*;
 import com.eturial.SNMPManager.server.service.encode_and_decode.impl.EncodeImpl;
+import com.eturial.SNMPManager.server.service.manager.SendRequest;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import org.junit.Test;
 
@@ -25,8 +26,11 @@ public class MethodTest {
         RequestAndResponse requestAndResponse = new RequestAndResponse(1,0, 0);
         SnmpPDU snmpPDU = new SnmpPDU(1, trap, requestAndResponse, variableBindings);
 
-        SNMPMessage snmpMessage = new SNMPMessage(1, "xust", snmpPDU);
+        SNMPMessage snmpMessage = new SNMPMessage(0, "xust", snmpPDU);
 
-        System.out.println(ChangeUtils.byteArrayToHexString(encode.getSnmpMessageCode(snmpMessage)));
+//        System.out.println(ChangeUtils.byteArrayToHexString(encode.getSnmpMessageCode(snmpMessage)));
+
+        SendRequest sendRequest = new SendRequest(snmpMessage, "127.0.0.1");
+        sendRequest.run();
     }
 }

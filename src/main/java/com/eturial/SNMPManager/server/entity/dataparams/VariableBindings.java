@@ -17,4 +17,10 @@ public class VariableBindings {
 
     private ArrayList<Variable> variableList;
 
+    @Override
+    public String toString() {
+        return "VariableBindings{" +
+                "variableList=" + variableList +
+                '}';
+    }
 }

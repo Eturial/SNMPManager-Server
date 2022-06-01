@@ -55,4 +55,11 @@ public class ChangeUtils {
         }
         return null;
     }
+
+    public static int bytesToInt(byte[] data) {
+        byte[] bytes = {0, 0, 0, 0};
+        System.arraycopy(data, 0, bytes, (4 - data.length), data.length);
+        return bytes[0] << 24 | (bytes[1] & 0xff) << 16 | (bytes[2] & 0xff) << 8 | (bytes[3] & 0xff);
+    }
+
 }

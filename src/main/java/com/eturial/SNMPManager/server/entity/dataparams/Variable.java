@@ -34,4 +34,16 @@ public class Variable {
 
         this.value = value;
     }
+
+    public Variable() {
+
+    }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

@@ -1,9 +1,11 @@
 import com.eturial.SNMPManager.server.entity.dataparams.*;
+import com.eturial.SNMPManager.server.service.encode_and_decode.Encode;
 import com.eturial.SNMPManager.server.service.encode_and_decode.impl.EncodeImpl;
 import com.eturial.SNMPManager.server.service.manager.SendRequest;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -12,13 +14,13 @@ import java.util.Arrays;
  * @date 2022/5/29
  */
 
-public class MethodTest {
+public class EncodeMethodTest {
     public static void main(String[] args) {
-        EncodeImpl encode = new EncodeImpl();
+        Encode encode = new EncodeImpl();
 
         VariableBindings variableBindings = new VariableBindings();
         ArrayList<Variable> variableArrayList = new ArrayList<>();
-        Variable variable1 = new Variable("1.3.6.1.2.1.1.1.0", 2, "20");
+        Variable variable1 = new Variable("1.3.6.1.2.1.1.1.311", 2, "20");
         variableArrayList.add(variable1);
         variableBindings.setVariableList(variableArrayList);
 

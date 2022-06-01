@@ -2,6 +2,8 @@ package com.eturial.SNMPManager.server.entity.dataparams;
 
 import lombok.Data;
 
+import java.util.Arrays;
+
 /**
  * @author Eturial
  * @date 2022/5/28
@@ -37,4 +39,5 @@ public class Trap {
      * 时间戳
      */
     private String timestamp = "";
+
 }

@@ -2,6 +2,8 @@ package com.eturial.SNMPManager.server.entity.dataparams;
 
 import lombok.Data;
 
+import java.util.Arrays;
+
 /**
  * SNMP PDU:
  *           请求报文：GetRequest、GetNextRequest 和 SetRequest
@@ -27,10 +29,6 @@ public class RequestAndResponse {
     private Integer errorStatusValue;
     private String errorStatus;
 
-    private final String[] status = {
-            "noError (1)", "tooBig (2)", "noSuchName (3)",
-            "badValue (4)", "readOnly (5)", "genError (6)"};
-
     /**
      * 错误索引(Error index)：当错误状态非 0 时指向出错的变量。
      */
@@ -40,8 +38,27 @@ public class RequestAndResponse {
         this.requestId = requestId;
 
         this.errorStatusValue = errorStatus;
-        this.errorStatus = status[errorStatus];
+        this.errorStatus = UniversalType.status[errorStatus];
 
         this.errorIndex = errorIndex;
+    }
+
+    public RequestAndResponse() {
+
+    }
+
+    public void setErrorStatusValue(Integer errorStatusValue) {
+        this.errorStatusValue = errorStatusValue;
+        this.errorStatus = UniversalType.status[errorStatusValue];
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "requestId=" + requestId +
+                ", errorStatusValue=" + errorStatusValue +
+                ", errorStatus='" + errorStatus + '\'' +
+                ", errorIndex=" + errorIndex +
+                '}';
     }
 }

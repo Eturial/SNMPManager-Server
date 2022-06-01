@@ -15,4 +15,8 @@ public class UniversalType {
     public static final String String = "OCTET STRING (4)";
     public static final String NULL = "NULL (5)";
     public static final String IDENTIFIER = "OBJECT IDENTIFIER (6)";
+
+    public static final String[] status = {
+            "noError (0)", "tooBig (1)", "noSuchName (2)",
+            "badValue (3)", "readOnly (4)", "genError (5)"};
 }

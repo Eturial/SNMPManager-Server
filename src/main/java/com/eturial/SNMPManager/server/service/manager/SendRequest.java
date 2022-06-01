@@ -1,11 +1,16 @@
 package com.eturial.SNMPManager.server.service.manager;
 
 import com.eturial.SNMPManager.server.entity.dataparams.SNMPMessage;
+import com.eturial.SNMPManager.server.service.encode_and_decode.Decode;
 import com.eturial.SNMPManager.server.service.encode_and_decode.Encode;
+import com.eturial.SNMPManager.server.service.encode_and_decode.impl.DecodeImpl;
 import com.eturial.SNMPManager.server.service.encode_and_decode.impl.EncodeImpl;
 import com.eturial.SNMPManager.utils.ChangeUtils;
+import com.eturial.SNMPManager.utils.ShowPacket;
 
+import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.util.Arrays;
 
 /**
  * @author Eturial
@@ -23,7 +28,9 @@ public class SendRequest {
     byte[] bytes = new byte[1472];
     DatagramPacket dp;
     InetAddress ipaddress;
+
     Encode encode = new EncodeImpl();
+    Decode decode = new DecodeImpl();
 
     static {
         try {
@@ -63,9 +70,8 @@ public class SendRequest {
             System.arraycopy(snmpDataTemp, 0, snmpData2, 0, dp.getLength());
 
             System.out.println("Receive SNMP Response:");
-//            SNMPMessage response = decoder.getSnmpMessage(snmpData2);
-//            System.out.println(response);
-//            Util.showPacket(snmpData2);
+            ShowPacket.showPacket(snmpData2);
+            System.out.println(ChangeUtils.byteArrayToHexString(snmpData2));
         } catch (Exception e) {
             System.out.println("\n 响应超时！！！\n");
         }

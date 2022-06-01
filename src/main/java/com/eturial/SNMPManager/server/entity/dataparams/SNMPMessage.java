@@ -33,4 +33,21 @@ public class SNMPMessage {
         this.snmpPDU = snmpPDU;
     }
 
+    public SNMPMessage() {
+
+    }
+
+    public void setVersionValue(Integer versionValue) {
+        this.versionValue = versionValue;
+        this.version = "Version-" + (versionValue - 1);
+    }
+
+    @Override
+    public String toString() {
+        return "SNMPMessage{" +
+                "\n\t\t\tversion='" + version + '\'' +
+                ", community='" + community + '\'' +
+                ",\n\t\t\t" + snmpPDU + "\n" +
+                '}';
+    }
 }

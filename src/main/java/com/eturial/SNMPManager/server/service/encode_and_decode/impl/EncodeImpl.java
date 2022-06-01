@@ -4,6 +4,7 @@ import com.eturial.SNMPManager.server.entity.dataparams.*;
 import com.eturial.SNMPManager.server.service.encode_and_decode.Encode;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import com.eturial.SNMPManager.utils.MergeUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
@@ -40,16 +41,24 @@ public class EncodeImpl implements Encode {
         list.add((byte) (Byte.parseByte(oID[0]) * 40 + Byte.parseByte(oID[1])));
 
         int[] rest = new int[oID.length - 2];
-        
-        byte[] temp = new byte[0];
+
+        ArrayList<Byte> temp = new ArrayList<>();
         for (int i = 0; i < rest.length; i++) {
             rest[i] = Integer.parseInt(oID[i + 2]);
-            if(rest[i] > 255) {
-                temp = ChangeUtils.intToBytes(rest[i]);
-                for(int j = 0; j < temp.length; j++)
-                    list.add(temp[j]);
+            if(rest[i] > 127) {
+                while(rest[i] != 0) {
+                   temp.add( (byte) (rest[i] % 128));
+                    rest[i] /= 128;
+                }
+                for(int j = temp.size() - 1; j >= 0; j--) {
+                    if(j != temp.size() - 1)
+                        temp.set(j, (byte) (temp.get(j) & 0x7f));
+                    else
+                        temp.set(j, (byte) (temp.get(j) | 0x80));
+                    list.add(temp.get(j));
+                }
             }
-            if(temp.length == 0)
+            if(temp.size() == 0)
                 list.add((byte)rest[i]);
         }
 

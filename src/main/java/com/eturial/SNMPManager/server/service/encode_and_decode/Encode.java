@@ -3,6 +3,7 @@ package com.eturial.SNMPManager.server.service.encode_and_decode;
 import com.eturial.SNMPManager.server.entity.dataparams.SNMPMessage;
 import com.eturial.SNMPManager.server.entity.dataparams.SnmpPDU;
 import com.eturial.SNMPManager.server.entity.dataparams.VariableBindings;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 

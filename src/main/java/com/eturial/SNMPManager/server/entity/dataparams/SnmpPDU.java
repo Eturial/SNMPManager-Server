@@ -41,4 +41,27 @@ public class SnmpPDU {
 
         this.variableBindings = variableBindings;
     }
+
+    public SnmpPDU() {
+
+    }
+
+    public void setPduTypeValue(Integer pduTypeValue) {
+        this.pduTypeValue = pduTypeValue;
+        this.pduType = snmpPduType[pduTypeValue];
+    }
+
+    @Override
+    public String toString() {
+        if(pduTypeValue != 4)
+            return "SnmpPDU{\n\t\t\t\t\t" + pduType + '\'' +
+                requestAndResponse +
+                ", \n\t\t\t\t\t" + variableBindings + "\n\t\t\t" +
+                '}';
+        else
+            return "SnmpPDU{\n\t\t\t\t\t" + pduType + '\'' +
+                    trap +
+                    ", \n\t\t\t\t\t" + variableBindings + "\n\t\t\t" +
+                    '}';
+    }
 }

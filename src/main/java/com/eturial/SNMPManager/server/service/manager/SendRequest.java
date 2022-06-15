@@ -1,14 +1,11 @@
 package com.eturial.SNMPManager.server.service.manager;
 
 import com.eturial.SNMPManager.server.entity.dataparams.SNMPMessage;
-import com.eturial.SNMPManager.server.service.encode_and_decode.Decode;
 import com.eturial.SNMPManager.server.service.encode_and_decode.Encode;
-import com.eturial.SNMPManager.server.service.encode_and_decode.impl.DecodeImpl;
 import com.eturial.SNMPManager.server.service.encode_and_decode.impl.EncodeImpl;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import com.eturial.SNMPManager.utils.ShowPacket;
 
-import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.Arrays;
 
@@ -19,18 +16,17 @@ import java.util.Arrays;
  * Manager 发送 Request
  */
 
+
 public class SendRequest {
     /**
      * UDP Socket
      */
     public static DatagramSocket socket;
     SNMPMessage snmpMessage;
-    byte[] bytes = new byte[1472];
-    DatagramPacket dp;
+    byte[] bytes = new byte[1500];
     InetAddress ipaddress;
 
     Encode encode = new EncodeImpl();
-    Decode decode = new DecodeImpl();
 
     static {
         try {
@@ -50,28 +46,28 @@ public class SendRequest {
     }
 
     public void run() {
-        byte[] snmpData2 = null;
-        byte[] snmpDataTemp;
         try {
 
             byte[] snmpData = encode.getSnmpMessageCode(snmpMessage);
             System.out.println("Send SNMP Message:");
+//            System.out.println(Arrays.toString(snmpData));
             System.out.println(ChangeUtils.byteArrayToHexString(encode.getSnmpMessageCode(snmpMessage)));
-
-            dp = new DatagramPacket(snmpData, snmpData.length, ipaddress, 161);
+            DatagramPacket datagramPacketSend = new DatagramPacket(snmpData, snmpData.length, ipaddress, 161);
             socket.setReuseAddress(true);
-            socket.send(dp);
+            socket.send(datagramPacketSend);
 
-            DatagramPacket dp = new DatagramPacket(bytes, bytes.length);
+            DatagramPacket datagramPacketReceive = new DatagramPacket(bytes, bytes.length);
             socket.setSoTimeout(1000);
-            socket.receive(dp);
-            snmpData2 = new byte[dp.getLength()];
-            snmpDataTemp = dp.getData();
-            System.arraycopy(snmpDataTemp, 0, snmpData2, 0, dp.getLength());
+            socket.receive(datagramPacketReceive);
+
+            byte[] temp = datagramPacketReceive.getData();
+
+            byte[] response = new byte[datagramPacketReceive.getLength()];
+            System.arraycopy(temp, 0, response, 0, datagramPacketReceive.getLength());
 
             System.out.println("Receive SNMP Response:");
-            ShowPacket.showPacket(snmpData2);
-            System.out.println(ChangeUtils.byteArrayToHexString(snmpData2));
+            ShowPacket.showPacket(response);
+            System.out.println(ChangeUtils.byteArrayToHexString(response));
         } catch (Exception e) {
             System.out.println("\n 响应超时！！！\n");
         }

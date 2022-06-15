@@ -1,6 +1,7 @@
 server:
     port: 8201
-
+    servlet:
+        context-path: /main    #项目访问路径
 spring:
     application:
         name: SNMPManager-Server

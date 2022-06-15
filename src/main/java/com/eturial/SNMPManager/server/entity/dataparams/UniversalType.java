@@ -19,4 +19,9 @@ public class UniversalType {
     public static final String[] status = {
             "noError (0)", "tooBig (1)", "noSuchName (2)",
             "badValue (3)", "readOnly (4)", "genError (5)"};
+
+    public static final String[] genericTrapTypes = {
+            "coldStart (0)", "warmStart (1)", "linkDown (2)",
+            "LinkUp (3)", "authenticationFailure (4)",
+            "egpNeighborLoss (5)", "enterpriseSpecific (6)"};
 }

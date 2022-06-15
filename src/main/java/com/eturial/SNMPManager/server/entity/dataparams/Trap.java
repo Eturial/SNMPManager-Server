@@ -25,10 +25,6 @@ public class Trap {
      */
     private Integer genericTrapValue;
     private String genericTrap;
-    private final String[] genericTrapTypes = {
-            "coldStart (0)", "warmStart (1)", "linkDown (2)",
-            "LinkUp (3)", "authenticationFailure (4)",
-            "egpNeighborLoss (5)", "enterpriseSpecific (6)"};
 
     /**
      *  企业私有trap信息
@@ -40,4 +36,8 @@ public class Trap {
      */
     private String timestamp = "";
 
+    public void setGenericTrapValue(Integer genericTrapValue) {
+        this.genericTrapValue = genericTrapValue;
+        this.genericTrap = UniversalType.genericTrapTypes[genericTrapValue];
+    }
 }

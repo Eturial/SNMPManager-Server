@@ -1,7 +1,9 @@
 package com.eturial.SNMPManager.server.service.encode_and_decode.impl;
 
 import com.eturial.SNMPManager.server.entity.dataparams.*;
+import com.eturial.SNMPManager.server.entity.return_value.ReturnOidAndPacket;
 import com.eturial.SNMPManager.server.entity.return_value.ReturnResponseAndPacket;
+import com.eturial.SNMPManager.server.entity.return_value.ReturnTrapAndPacket;
 import com.eturial.SNMPManager.server.service.encode_and_decode.Decode;
 import com.eturial.SNMPManager.utils.ChangeUtils;
 import lombok.Data;
@@ -81,8 +83,9 @@ public class DecodeImpl implements Decode {
         packet = cutPacket(packet, 1);
 
         // trap
-        if(typeValue == 4) {
-            snmpPDU.setTrap(trap);
+        if(typeValue == 4) { ;
+            snmpPDU.setTrap(getTrap(packet).getTrap());
+            packet = getTrap(packet).getPacket();
         } else {
             snmpPDU.setRequestAndResponse(getResponse(packet).getRequestAndResponse());
             packet = getResponse(packet).getPacket();
@@ -141,52 +144,121 @@ public class DecodeImpl implements Decode {
             lengthByte = getPacketLength(packet)[1];
             packet = cutPacket(packet, lengthByte + 1);
 
-            length = getPacketLength(packet)[0];
-            lengthByte = getPacketLength(packet)[1];
-            packet = cutPacket(packet, lengthByte);
-
-            byte y = (byte) (packet[0] % 40);
-            byte x = (byte) (packet[0] / 40);
-            String oID = String.valueOf(x) + "." + String.valueOf(y);
-            for(int i = 1; i < length; i++)
-                oID += "." + String.valueOf(packet[i]);
+            // Name
+            String oID = getOID(packet).getOID();
+            packet = getOID(packet).getPacket();
             variable.setName(oID);
 
-            packet = cutPacket(packet, length);
-
             packet = cutPacket(packet, 1);
-            length = getPacketLength(packet)[0];
-            lengthByte = getPacketLength(packet)[1];
-            packet = cutPacket(packet, lengthByte);
 
-            y = (byte) (packet[0] % 40);
-            x = (byte) (packet[0] / 40);
-            oID = String.valueOf(x) + "." + String.valueOf(y);
-            for(int i = 1; i < length; i++) {
-                if(((packet[i] >> 7) & 0x1) == 1) {
-                    int k = i;
-                    ArrayList<Byte> list = new ArrayList<>();
-                    while(((packet[k] >> 7) & 0x1) == 1) {
-                        list.add((packet[k] &= ~(1 << 7)));
-                        k++;
-                    }
-                    list.add(packet[k]);
-                    int res = 0;
-                    for(int j = 0; j < list.size(); j++) {
-                        res += list.get(j) * Math.pow(128,list.size() - j - 1);
-                    }
-                    oID += "." + String.valueOf(res);
-                    i += k - i;
-                    continue;
-                }
-                oID += "." + String.valueOf(packet[i]);
-            }
-            packet = cutPacket(packet, length);
+            // Value
+            oID = getOID(packet).getOID();
+            packet = getOID(packet).getPacket();
+
+
             variable.setValue(oID);
             variableArrayList.add(variable);
         }
         variableBindings.setVariableList(variableArrayList);
 
         return variableBindings;
+    }
+
+    public ReturnOidAndPacket getOID(byte[] packet) {
+        ReturnOidAndPacket returnOidAndPacket = new ReturnOidAndPacket();
+
+        int length = getPacketLength(packet)[0];
+        int lengthByte = getPacketLength(packet)[1];
+        packet = cutPacket(packet, lengthByte);
+
+        byte y = (byte) (packet[0] % 40);
+        byte x = (byte) (packet[0] / 40);
+        String oID = String.valueOf(x) + "." + String.valueOf(y);
+        for(int i = 1; i < length; i++) {
+            if(((packet[i] >> 7) & 0x1) == 1) {
+                int k = i;
+                ArrayList<Byte> list = new ArrayList<>();
+                while(((packet[k] >> 7) & 0x1) == 1) {
+                    list.add((packet[k] &= ~(1 << 7)));
+                    k++;
+                }
+                list.add(packet[k]);
+                int res = 0;
+                for(int j = 0; j < list.size(); j++) {
+                    res += list.get(j) * Math.pow(128,list.size() - j - 1);
+                }
+                oID += "." + String.valueOf(res);
+                i += k - i;
+                continue;
+            }
+            oID += "." + String.valueOf(packet[i]);
+        }
+        returnOidAndPacket.setOID(oID);
+
+        packet = cutPacket(packet, length);
+        returnOidAndPacket.setPacket(packet);
+
+        return returnOidAndPacket;
+    }
+
+    @Override
+    public String getIpAddress(byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        int[] temp = ChangeUtils.byteToDec(data);
+        for (int i = 0; i < temp.length; i++) {
+            sb.append(temp[i]);
+            if (i < 3) {
+                sb.append('.');
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public ReturnTrapAndPacket getTrap(byte[] packet) {
+        ReturnTrapAndPacket returnTrapAndPacket = new ReturnTrapAndPacket();
+        Trap trap = new Trap();
+
+        int length = getPacketLength(packet)[0];
+        int lengthByte = getPacketLength(packet)[1];
+        packet= cutPacket(packet, lengthByte + 1);
+
+        String oID = getOID(packet).getOID();
+        trap.setEnterprise(oID);
+        packet = getOID(packet).getPacket();
+
+        packet= cutPacket(packet, 1);
+        length = getPacketLength(packet)[0];
+        lengthByte = getPacketLength(packet)[1];
+        packet = cutPacket(packet, lengthByte);
+
+        byte[] ipaddr = Arrays.copyOfRange(packet,0, length);
+        trap.setAgentAddr(getIpAddress(ipaddr));
+        packet = cutPacket(packet, length);
+
+        int genericTrap = packet[2] & 0xff;
+        trap.setGenericTrapValue(genericTrap);
+        packet = cutPacket(packet, 3);
+
+        int specificTrap = packet[2] & 0xff;
+        trap.setSpecificTrap(specificTrap);
+        packet = cutPacket(packet, 4);
+
+        // time-stamp
+        length = getPacketLength(packet)[0];
+        lengthByte = getPacketLength(packet)[1];
+        packet = cutPacket(packet, lengthByte);
+        byte[] timeStamp = Arrays.copyOfRange(packet, 0, length);
+        trap.setTimestamp(getTimeTicks(timeStamp));
+        packet = cutPacket(packet, length);
+        
+        returnTrapAndPacket.setTrap(trap);
+        returnTrapAndPacket.setPacket(packet);
+        return returnTrapAndPacket;
+    }
+
+    @Override
+    public String getTimeTicks(byte[] packet) {
+        return String.valueOf(ChangeUtils.bytesToInt(packet));
     }
 }

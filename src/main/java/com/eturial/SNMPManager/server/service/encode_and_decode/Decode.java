@@ -2,8 +2,11 @@ package com.eturial.SNMPManager.server.service.encode_and_decode;
 
 import com.eturial.SNMPManager.server.entity.dataparams.SNMPMessage;
 import com.eturial.SNMPManager.server.entity.dataparams.SnmpPDU;
+import com.eturial.SNMPManager.server.entity.dataparams.Trap;
 import com.eturial.SNMPManager.server.entity.dataparams.VariableBindings;
+import com.eturial.SNMPManager.server.entity.return_value.ReturnOidAndPacket;
 import com.eturial.SNMPManager.server.entity.return_value.ReturnResponseAndPacket;
+import com.eturial.SNMPManager.server.entity.return_value.ReturnTrapAndPacket;
 
 import java.io.UnsupportedEncodingException;
 
@@ -63,9 +66,30 @@ public interface Decode {
     VariableBindings getVariableBindings(byte[] packet);
 
     /**
+     * 解码数据包，得到trap
+     * @param packet
+     * @return trap
+     */
+    ReturnTrapAndPacket getTrap(byte[] packet);
+
+    /**
      * 解码数据包，得到OID
      * @param packet
-     * @return Variable bindings
+     * @return OID
      */
+    ReturnOidAndPacket getOID(byte[] packet);
 
+    /**
+     * 解码数据包，得到 IP Address
+     * @param packet
+     * @return IP Address
+     */
+    String getIpAddress(byte[] packet);
+
+    /**
+     * 解码数据包，得到 time ticks
+     * @param packet
+     * @return time ticks
+     */
+    String getTimeTicks(byte[] packet);
 }

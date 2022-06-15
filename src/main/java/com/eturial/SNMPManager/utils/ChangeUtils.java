@@ -62,4 +62,18 @@ public class ChangeUtils {
         return bytes[0] << 24 | (bytes[1] & 0xff) << 16 | (bytes[2] & 0xff) << 8 | (bytes[3] & 0xff);
     }
 
+    /**
+     * 将字节数组转换为十进制数组
+     *
+     * @param bytes 字节数组
+     * @return 返回转换后的十进制数组
+     */
+    public static int[] byteToDec(byte[] bytes) {
+        int[] dec = new int[bytes.length];
+        int i = 0;
+        for (byte b : bytes) {
+            dec[i++] = b & 0xff;
+        }
+        return dec;
+    }
 }

@@ -62,7 +62,7 @@ public interface Encode {
 
     /**
      * @param snmpMessage
-     * @return SnmpPDU 编码
+     * @return SnmpMessage编码
      */
     byte[] getSnmpMessageCode(SNMPMessage snmpMessage);
 }
